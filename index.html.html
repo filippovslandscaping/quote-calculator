@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landscaping Quote Calculator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Merriweather:wght@700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #39933a;
+            --dark: #000000;
+            --gray: #676767;
+            --accent: #79ad2f;
+            --white: #FFFFFF;
+            --light-bg: #f8faf7;
+            --border: #E5E7EB;
+            --warning: #F59E0B;
+        }
+        
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, var(--light-bg) 0%, #e8f5e0 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        header {
+            background: var(--primary);
+            color: var(--white);
+            padding: 1.5rem;
+            border-radius: 0 0 24px 24px;
+            box-shadow: 0 4px 20px rgba(57, 147, 58, 0.3);
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+        
+        .tab {
+            background: var(--white);
+            border: 2px solid var(--border);
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .tab:hover {
+            border-color: var(--accent);
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+        
+        .calculator-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .calculator-section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-title::before {
+            content: "🌿";
+            font-size: 1.5rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        input[type="number"],
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'DM Sans', sans-serif;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(121, 173, 47, 0.1);
+        }
+        
+        .price-display {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: var(--white);
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+            margin-top: 2rem;
+            box-shadow: 0 8px 24px rgba(57, 147, 58, 0.3);
+        }
+        
+        .price-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .price-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: 'Merriweather', serif;
+        }
+        
+        .service-item {
+            background: var(--light-bg);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .service-header {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .service-meta {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+        
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .reset-btn {
+            background: var(--warning);
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 1rem;
+            font-size: 1rem;
+        }
+        
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+        
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+            
+            .price-amount {
+                font-size: 2rem;
+            }
+        }
+        
+        .tier-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .tier-basic {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+        
+        .tier-priority {
+            background: #E0E7FF;
+            color: #4338CA;
+        }
+        
+        .tier-executive {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🌳 Landscaping Quote Calculator</h1>
+            <p class="subtitle">Professional pricing for your landscaping services</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('oneoff')">One-Off Services</button>
+            <button class="tab" onclick="switchTab('signature')">1️⃣ Signature Care</button>
+            <button class="tab" onclick="switchTab('priority')">2️⃣ Priority Estate</button>
+            <button class="tab" onclick="switchTab('executive')">3️⃣ Executive</button>
+        </div>
+        
+        <!-- ONE-OFF SERVICES -->
+        <div id="oneoff" class="calculator-section active">
+            
+            <!-- 1. MULCH -->
+            <div class="card">
+                <h2 class="card-title">1. Mulch Installation</h2>
+                <div class="input-group">
+                    <label>Total Yards Needed</label>
+                    <input type="number" id="mulch-yards" min="0" step="0.5" placeholder="0" oninput="calcAll()">
+                    <small style="color: var(--gray); margin-top: 0.5rem; display: block;">
+                        1-4 yds: $120/yd • 5-9 yds: $100/yd • 10+ yds: $80/yd
+                    </small>
+                </div>
+                <div class="price-display">
+                    <div class="price-label">Customer Price</div>
+                    <div class="price-amount" id="price-1">$0</div>
+                </div>
+            </div>
+            
+            <!-- 2. BED CLEANUP -->
+            <div class="card">
+                <h2 class="card-title">2. Bed Cleanup & Preparation</h2>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Crew Size</label>
+                        <input type="number" id="bed-crew" min="1" value="2" oninput="calcAll()">
+                    </div>
+                    <div class="input-group">
+                        <label>Hours</label>
+                        <input type="number" id="bed-hours" min="0" step="0.5" placeholder="0" oninput="calcAll()">
+                    </div>
+                </div>
+                <small style="color: var(--gray);">$70/man-hour</small>
+                <div class="price-display">
+                    <div class="price-label">Customer Price</div>
+                    <div class="price-amount" id="price-2">$0</div>
+                </div>
+            </div>
+            
+            <!-- 3. EDGING -->
+            <div class="card">
+                <h2 class="card-title">3. Landscape Bed Edging</h2>
+                <div class="input-group">
+                    <label>Linear Feet</label>
+                    <input type="number" id="edge-feet" min="0" step="1" placeholder="0" oninput="calcAll()">
+                    <small style="color: var(--gray); margin-top: 0.5rem; display: block;">
+                        $1.50 per linear foot
+                    </small>
+                </div>
+                <div class="price-display">
+                    <div class="price-label">Customer Price</div>
+                    <div class="price-amount" id="price-3">$0</div>
+                </div>
+            </div>
+            
+            <!-- 4. SHRUB TRIMMING -->
+            <div class="card">
+                <h2 class="card-title">4. Shrub & Hedge Trimming</h2>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Crew Size</label>
+                        <input type="number" id="shrub-crew" min="1" value="2" oninput="calcAll()">
+                    </div>
+                    <div class="input-group">
+                        <label>Hours</label>
+                        <input type="number" id="shrub-hours" min="0" step="0.5" placeholder="0" oninput="calcAll()">
+                    </div>
+                </div>
+                <small style="color: var(--gray);">$70/man-hour</small>
+                <div class="price-display">
+                    <div class="price-label">Customer Price</div>
+                    <div class="price-amount" id="price-4">$0</div>
+                </div>
+            </div>
+            
+            <!-- 5. ROCK -->
+            <div class="card">
+                <h2 class="card-title">5. Rock Installation</h2>
+                <div class="input-group">
+                    <label>Rock Type</label>
+                    <input type="text" id="rock-type" placeholder="e.g., River Rock">
+                </div>
+                <div class="input-group">
+                    <label>Total Tons Needed</label>
+                    <input type="number" id="rock-tons" min="0" step="0.5" placeholder="0" oninput="calcAll()">
+                    <small style="color: var(--gray); margin-top: 0.5rem; display: block;">
+                        1-4 tons: $220/ton • 5-9 tons: $200/ton • 10+ tons: $180/ton
+                    </small>
+                </div>
+                <div class="price-display">
+                    <div class="price-label">Customer Price</div>
+                    <div class="price-amount" id="price-5">$0</div>
+                </div>
+            </div>
+            
+            <!-- 6. POWER WASHING -->
+            <div class="card">
+                <h2 class="card-title">6. Walkway & Surface Power Washing</h2>
+                <div class="input-group">
+                    <label>Square Feet</label>
+                    <input type="number" id="power-sqft" min="0" step="1" placeholder="0" oninput="calcAll()">
+                    <small style="color: var(--gray); margin-top: 0.5rem; display: block;">
+                        $0.45/sq ft
+                    </small>
+                </div>
+                <div class="input-group">
+                    <label>Add Polymeric Sand Reinstall? ($2.50/sq ft)</label>
+                    <select id="power-sand" onchange="calcAll()">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Add Surface Sealing? ($2.25/sq ft)</label>
+                    <select id="power-seal" onchange="calcAll()">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+                <div class="price-display">
+                    <div class="price-label">Customer Price</div>
+                    <div class="price-amount" id="price-6">$0</div>
+                </div>
+            </div>
+            
+            <!-- 7. PLANT INSTALLATION -->
+            <div class="card">
+                <h2 class="card-title">7. Plant Installation</h2>
+                <div class="input-group">
+                    <label>Plant Material Cost</label>
+                    <input type="number" id="plant-material" min="0" step="1" placeholder="0" oninput="calcAll()">
+                    <small style="color: var(--gray); margin-top: 0.5rem; display: block;">
+                        Labor = 60% of plant cost
+                    </small>
+                </div>
+                <div class="price-display">
+                    <div class="price-label">Customer Price (Material + Labor)</div>
+                    <div class="price-amount" id="price-7">$0</div>
+                </div>
+            </div>
+            
+            <!-- 8. GUTTER CLEANING -->
+            <div class="card">
+                <h2 class="card-title">8. Gutter Cleaning</h2>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Crew Size</label>
+                        <input type="number" id="gutter-crew" min="1" value="2" oninput="calcAll()">
+                    </div>
+                    <div class="input-group">
+                        <label>Hours</label>
+                        <input type="number" id="gutter-hours" min="0" step="0.5" placeholder="0" oninput="calcAll()">
+                    </div>
+                </div>
+                <small style="color: var(--gray);">$70/man-hour</small>
+                <div class="price-display">
+                    <div class="price-label">Customer Price</div>
+                    <div class="price-amount" id="price-8">$0</div>
+                </div>
+            </div>
+            
+            <!-- 9. AERATION & OVERSEED -->
+            <div class="card">
+                <h2 class="card-title">9. Aeration & Overseeding</h2>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Crew Size</label>
+                        <input type="number" id="aer-crew" min="1" value="2" oninput="calcAll()">
+                    </div>
+                    <div class="input-group">
+                        <label>Hours</label>
+                        <input type="number" id="aer-hours" min="0" step="0.5" placeholder="0" oninput="calcAll()">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Material Cost (seed, etc.)</label>
+                    <input type="number" id="aer-material" min="0" step="1" placeholder="0" oninput="calcAll()">
+                </div>
+                <small style="color: var(--gray);">$70/man-hour + materials</small>
+                <div class="price-display">
+                    <div class="price-label">Customer Price</div>
+                    <div class="price-amount" id="price-9">$0</div>
+                </div>
+            </div>
+            
+            <!-- 10. TREE SERVICE -->
+            <div class="card">
+                <h2 class="card-title">10. Tree Service</h2>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Crew Size</label>
+                        <input type="number" id="tree-crew" min="1" value="2" oninput="calcAll()">
+                    </div>
+                    <div class="input-group">
+                        <label>Hours</label>
+                        <input type="number" id="tree-hours" min="0" step="0.5" placeholder="0" oninput="calcAll()">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Material Cost (equipment, disposal)</label>
+                    <input type="number" id="tree-material" min="0" step="1" placeholder="0" oninput="calcAll()">
+                </div>
+                <small style="color: var(--gray);">$70/man-hour + materials</small>
+                <div class="price-display">
+                    <div class="price-label">Customer Price</div>
+                    <div class="price-amount" id="price-10">$0</div>
+                </div>
+            </div>
+            
+            <!-- 11. BRUSH CLEARING -->
+            <div class="card">
+                <h2 class="card-title">11. Brush Clearing & Hauling</h2>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Crew Size</label>
+                        <input type="number" id="brush-crew" min="1" value="2" oninput="calcAll()">
+                    </div>
+                    <div class="input-group">
+                        <label>Hours</label>
+                        <input type="number" id="brush-hours" min="0" step="0.5" placeholder="0" oninput="calcAll()">
+                    </div>
+                </div>
+                <small style="color: var(--gray);">$70/man-hour</small>
+                <div class="price-display">
+                    <div class="price-label">Customer Price</div>
+                    <div class="price-amount" id="price-11">$0</div>
+                </div>
+            </div>
+            
+            <!-- 12. DEBRIS HAULING -->
+            <div class="card">
+                <h2 class="card-title">12. Natural Debris Hauling</h2>
+                <div class="input-group">
+                    <label>Estimated Cost</label>
+                    <input type="number" id="debris-cost" min="0" step="1" placeholder="0" oninput="calcAll()">
+                    <small style="color: var(--gray); margin-top: 0.5rem; display: block;">
+                        Priced per load
+                    </small>
+                </div>
+                <div class="price-display">
+                    <div class="price-label">Customer Price</div>
+                    <div class="price-amount" id="price-12">$0</div>
+                </div>
+            </div>
+            
+            <!-- 13. LEAF CLEANUP -->
+            <div class="card">
+                <h2 class="card-title">13. Leaf Cleanup</h2>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Crew Size</label>
+                        <input type="number" id="leaf-crew" min="1" value="2" oninput="calcAll()">
+                    </div>
+                    <div class="input-group">
+                        <label>Hours</label>
+                        <input type="number" id="leaf-hours" min="0" step="0.5" placeholder="0" oninput="calcAll()">
+                    </div>
+                </div>
+                <small style="color: var(--gray);">$70/man-hour</small>
+                <div class="price-display">
+                    <div class="price-label">Customer Price</div>
+                    <div class="price-amount" id="price-13">$0</div>
+                </div>
+            </div>
+            
+            <!-- 14. BULB INSTALLATION -->
+            <div class="card">
+                <h2 class="card-title">14. Seasonal Bulb Installation</h2>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Crew Size</label>
+                        <input type="number" id="bulb-crew" min="1" value="2" oninput="calcAll()">
+                    </div>
+                    <div class="input-group">
+                        <label>Hours</label>
+                        <input type="number" id="bulb-hours" min="0" step="0.5" placeholder="0" oninput="calcAll()">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Bulb Cost</label>
+                    <input type="number" id="bulb-material" min="0" step="1" placeholder="0" oninput="calcAll()">
+                </div>
+                <small style="color: var(--gray);">$70/man-hour + bulbs</small>
+                <div class="price-display">
+                    <div class="price-label">Customer Price</div>
+                    <div class="price-amount" id="price-14">$0</div>
+                </div>
+            </div>
+            
+            <button class="reset-btn" onclick="resetOneOff()">🔄 Reset All Values</button>
+        </div>
+        
+        <!-- SIGNATURE CARE PLAN -->
+        <div id="signature" class="calculator-section">
+            <div class="tier-badge tier-basic">Basic / Good Deal Package</div>
+            
+            <div class="card">
+                <div class="service-item">
+                    <div class="service-header">Weekly Mowing + Trimming + Blowing</div>
+                    <div class="service-meta">30 visits per year (2 week buffer)</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="sig-mow-hrs" min="0" step="0.25" placeholder="0" oninput="calcSignature()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Spring Cleanup</div>
+                    <div class="service-meta">1 visit per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="sig-spring-hrs" min="0" step="0.5" placeholder="0" oninput="calcSignature()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Fall Cleanup</div>
+                    <div class="service-meta">2 visits per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="sig-fall-hrs" min="0" step="0.5" placeholder="0" oninput="calcSignature()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Shrub Trimming</div>
+                    <div class="service-meta">1 visit per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="sig-shrub-hrs" min="0" step="0.5" placeholder="0" oninput="calcSignature()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Bed Weeding</div>
+                    <div class="service-meta">1 visit per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="sig-weed-hrs" min="0" step="0.5" placeholder="0" oninput="calcSignature()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Gutter Cleaning</div>
+                    <div class="service-meta">1 visit per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="sig-gutter-hrs" min="0" step="0.5" placeholder="0" oninput="calcSignature()">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Labor Settings</h3>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Crew Size</label>
+                        <input type="number" id="sig-crew" min="1" value="2" oninput="calcSignature()">
+                    </div>
+                    <div class="input-group">
+                        <label>Hourly Rate/Person</label>
+                        <input type="number" id="sig-rate" min="0" value="18" oninput="calcSignature()">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="price-display">
+                <div class="price-label">Monthly Payment</div>
+                <div class="price-amount" id="sig-monthly">$0</div>
+                <div style="margin-top: 1rem; opacity: 0.9; font-size: 1rem;">
+                    Annual: <span id="sig-annual">$0</span>
+                </div>
+            </div>
+            
+            <button class="reset-btn" onclick="resetSignature()">🔄 Reset All Values</button>
+        </div>
+        
+        <!-- PRIORITY ESTATE CARE PLAN -->
+        <div id="priority" class="calculator-section">
+            <div class="tier-badge tier-priority">Mid-Tier / Most Popular</div>
+            
+            <div class="card">
+                <div class="service-item">
+                    <div class="service-header">Weekly Mowing + Trimming + Blowing</div>
+                    <div class="service-meta">32 visits per year (covers full season)</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="pri-mow-hrs" min="0" step="0.25" placeholder="0" oninput="calcPriority()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Spring Cleanup</div>
+                    <div class="service-meta">1 visit per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="pri-spring-hrs" min="0" step="0.5" placeholder="0" oninput="calcPriority()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Fall Cleanup</div>
+                    <div class="service-meta">3 visits per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="pri-fall-hrs" min="0" step="0.5" placeholder="0" oninput="calcPriority()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Shrub Trimming</div>
+                    <div class="service-meta">2 visits per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="pri-shrub-hrs" min="0" step="0.5" placeholder="0" oninput="calcPriority()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Bed Weeding</div>
+                    <div class="service-meta">3 visits per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="pri-weed-hrs" min="0" step="0.5" placeholder="0" oninput="calcPriority()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Aeration + Overseed</div>
+                    <div class="service-meta">1 visit per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="pri-aer-hrs" min="0" step="0.5" placeholder="0" oninput="calcPriority()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Gutter Cleaning</div>
+                    <div class="service-meta">1 visit per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="pri-gutter-hrs" min="0" step="0.5" placeholder="0" oninput="calcPriority()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Mulch Color Refresh</div>
+                    <div class="service-meta">2 visits per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="pri-mulch-hrs" min="0" step="0.5" placeholder="0" oninput="calcPriority()">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Labor Settings</h3>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Crew Size</label>
+                        <input type="number" id="pri-crew" min="1" value="2" oninput="calcPriority()">
+                    </div>
+                    <div class="input-group">
+                        <label>Hourly Rate/Person</label>
+                        <input type="number" id="pri-rate" min="0" value="18" oninput="calcPriority()">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="price-display">
+                <div class="price-label">Monthly Payment</div>
+                <div class="price-amount" id="pri-monthly">$0</div>
+                <div style="margin-top: 1rem; opacity: 0.9; font-size: 1rem;">
+                    Annual: <span id="pri-annual">$0</span>
+                </div>
+            </div>
+            
+            <button class="reset-btn" onclick="resetPriority()">🔄 Reset All Values</button>
+        </div>
+        
+        <!-- EXECUTIVE EXTERIOR PLAN -->
+        <div id="executive" class="calculator-section">
+            <div class="tier-badge tier-executive">Premium / Luxury Package</div>
+            
+            <div class="card">
+                <div class="service-item">
+                    <div class="service-header">Weekly Mowing + Trimming + Blowing</div>
+                    <div class="service-meta">34 visits per year (2 week buffer)</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="exe-mow-hrs" min="0" step="0.25" placeholder="0" oninput="calcExecutive()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Spring Cleanup</div>
+                    <div class="service-meta">1 visit per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="exe-spring-hrs" min="0" step="0.5" placeholder="0" oninput="calcExecutive()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Fall Cleanup</div>
+                    <div class="service-meta">4 visits per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="exe-fall-hrs" min="0" step="0.5" placeholder="0" oninput="calcExecutive()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Shrub Trimming</div>
+                    <div class="service-meta">3 visits per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="exe-shrub-hrs" min="0" step="0.5" placeholder="0" oninput="calcExecutive()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Bed Weeding</div>
+                    <div class="service-meta">4 visits per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="exe-weed-hrs" min="0" step="0.5" placeholder="0" oninput="calcExecutive()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Aeration + Overseed</div>
+                    <div class="service-meta">1 visit per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="exe-aer-hrs" min="0" step="0.5" placeholder="0" oninput="calcExecutive()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Gutter Cleaning</div>
+                    <div class="service-meta">2 visits per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="exe-gutter-hrs" min="0" step="0.5" placeholder="0" oninput="calcExecutive()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Plant Installations</div>
+                    <div class="service-meta">3 visits per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="exe-plant-hrs" min="0" step="0.5" placeholder="0" oninput="calcExecutive()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Power Washing</div>
+                    <div class="service-meta">1 visit per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="exe-power-hrs" min="0" step="0.5" placeholder="0" oninput="calcExecutive()">
+                    </div>
+                </div>
+                
+                <div class="service-item">
+                    <div class="service-header">Mulch Color Refresh</div>
+                    <div class="service-meta">3 visits per year</div>
+                    <div class="input-group">
+                        <label>Hours per visit</label>
+                        <input type="number" id="exe-mulch-hrs" min="0" step="0.5" placeholder="0" oninput="calcExecutive()">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Labor Settings</h3>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Crew Size</label>
+                        <input type="number" id="exe-crew" min="1" value="2" oninput="calcExecutive()">
+                    </div>
+                    <div class="input-group">
+                        <label>Hourly Rate/Person</label>
+                        <input type="number" id="exe-rate" min="0" value="18" oninput="calcExecutive()">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="price-display">
+                <div class="price-label">Monthly Payment</div>
+                <div class="price-amount" id="exe-monthly">$0</div>
+                <div style="margin-top: 1rem; opacity: 0.9; font-size: 1rem;">
+                    Annual: <span id="exe-annual">$0</span>
+                </div>
+            </div>
+            
+            <button class="reset-btn" onclick="resetExecutive()">🔄 Reset All Values</button>
+        </div>
+    </div>
+    
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.calculator-section').forEach(s => s.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+        
+        function fmt(amount) {
+            return '$' + Math.round(amount).toLocaleString();
+        }
+        
+        // ONE-OFF CALCULATIONS
+        function calcAll() {
+            const mulchYards = parseFloat(document.getElementById('mulch-yards').value) || 0;
+            let mulchPrice = 0;
+            if (mulchYards <= 4) mulchPrice = mulchYards * 120;
+            else if (mulchYards <= 9) mulchPrice = mulchYards * 100;
+            else mulchPrice = mulchYards * 80;
+            document.getElementById('price-1').textContent = fmt(mulchPrice);
+            
+            const bedCrew = parseInt(document.getElementById('bed-crew').value) || 2;
+            const bedHours = parseFloat(document.getElementById('bed-hours').value) || 0;
+            document.getElementById('price-2').textContent = fmt(bedCrew * bedHours * 70);
+            
+            const edgeFeet = parseFloat(document.getElementById('edge-feet').value) || 0;
+            document.getElementById('price-3').textContent = fmt(edgeFeet * 1.50);
+            
+            const shrubCrew = parseInt(document.getElementById('shrub-crew').value) || 2;
+            const shrubHours = parseFloat(document.getElementById('shrub-hours').value) || 0;
+            document.getElementById('price-4').textContent = fmt(shrubCrew * shrubHours * 70);
+            
+            const rockTons = parseFloat(document.getElementById('rock-tons').value) || 0;
+            let rockPrice = 0;
+            if (rockTons <= 4) rockPrice = rockTons * 220;
+            else if (rockTons <= 9) rockPrice = rockTons * 200;
+            else rockPrice = rockTons * 180;
+            document.getElementById('price-5').textContent = fmt(rockPrice);
+            
+            const powerSqft = parseFloat(document.getElementById('power-sqft').value) || 0;
+            const powerSand = document.getElementById('power-sand').value;
+            const powerSeal = document.getElementById('power-seal').value;
+            let powerBase = powerSqft * 0.45;
+            let sandCost = powerSand === 'Yes' ? powerSqft * 2.50 : 0;
+            let sealCost = powerSeal === 'Yes' ? powerSqft * 2.25 : 0;
+            document.getElementById('price-6').textContent = fmt(powerBase + sandCost + sealCost);
+            
+            const plantMaterial = parseFloat(document.getElementById('plant-material').value) || 0;
+            document.getElementById('price-7').textContent = fmt(plantMaterial + (plantMaterial * 0.60));
+            
+            const gutterCrew = parseInt(document.getElementById('gutter-crew').value) || 2;
+            const gutterHours = parseFloat(document.getElementById('gutter-hours').value) || 0;
+            document.getElementById('price-8').textContent = fmt(gutterCrew * gutterHours * 70);
+            
+            const aerCrew = parseInt(document.getElementById('aer-crew').value) || 2;
+            const aerHours = parseFloat(document.getElementById('aer-hours').value) || 0;
+            const aerMaterial = parseFloat(document.getElementById('aer-material').value) || 0;
+            document.getElementById('price-9').textContent = fmt((aerCrew * aerHours * 70) + aerMaterial);
+            
+            const treeCrew = parseInt(document.getElementById('tree-crew').value) || 2;
+            const treeHours = parseFloat(document.getElementById('tree-hours').value) || 0;
+            const treeMaterial = parseFloat(document.getElementById('tree-material').value) || 0;
+            document.getElementById('price-10').textContent = fmt((treeCrew * treeHours * 70) + treeMaterial);
+            
+            const brushCrew = parseInt(document.getElementById('brush-crew').value) || 2;
+            const brushHours = parseFloat(document.getElementById('brush-hours').value) || 0;
+            document.getElementById('price-11').textContent = fmt(brushCrew * brushHours * 70);
+            
+            const debrisCost = parseFloat(document.getElementById('debris-cost').value) || 0;
+            document.getElementById('price-12').textContent = fmt(debrisCost);
+            
+            const leafCrew = parseInt(document.getElementById('leaf-crew').value) || 2;
+            const leafHours = parseFloat(document.getElementById('leaf-hours').value) || 0;
+            document.getElementById('price-13').textContent = fmt(leafCrew * leafHours * 70);
+            
+            const bulbCrew = parseInt(document.getElementById('bulb-crew').value) || 2;
+            const bulbHours = parseFloat(document.getElementById('bulb-hours').value) || 0;
+            const bulbMaterial = parseFloat(document.getElementById('bulb-material').value) || 0;
+            document.getElementById('price-14').textContent = fmt((bulbCrew * bulbHours * 70) + bulbMaterial);
+        }
+        
+        function resetOneOff() {
+            document.querySelectorAll('#oneoff input').forEach(input => {
+                if (input.type === 'number') {
+                    if (input.id.includes('crew')) input.value = '2';
+                    else input.value = '';
+                } else {
+                    input.value = '';
+                }
+            });
+            document.querySelectorAll('#oneoff select').forEach(select => {
+                select.value = 'No';
+            });
+            calcAll();
+        }
+        
+        // SIGNATURE CARE
+        function calcSignature() {
+            const crew = parseInt(document.getElementById('sig-crew').value) || 2;
+            const rate = parseFloat(document.getElementById('sig-rate').value) || 18;
+            const crewCost = crew * rate;
+            
+            const mowHrs = parseFloat(document.getElementById('sig-mow-hrs').value) || 0;
+            const springHrs = parseFloat(document.getElementById('sig-spring-hrs').value) || 0;
+            const fallHrs = parseFloat(document.getElementById('sig-fall-hrs').value) || 0;
+            const shrubHrs = parseFloat(document.getElementById('sig-shrub-hrs').value) || 0;
+            const weedHrs = parseFloat(document.getElementById('sig-weed-hrs').value) || 0;
+            const gutterHrs = parseFloat(document.getElementById('sig-gutter-hrs').value) || 0;
+            
+            const laborCost = (mowHrs * 30 * crewCost) + 
+                             (springHrs * 1 * crewCost) + 
+                             (fallHrs * 2 * crewCost) + 
+                             (shrubHrs * 1 * crewCost) + 
+                             (weedHrs * 1 * crewCost) + 
+                             (gutterHrs * 1 * crewCost);
+            
+            const profit = laborCost * 0.30;
+            const annual = laborCost + profit;
+            const monthly = annual / 12;
+            
+            document.getElementById('sig-monthly').textContent = fmt(monthly);
+            document.getElementById('sig-annual').textContent = fmt(annual);
+        }
+        
+        function resetSignature() {
+            document.querySelectorAll('#signature input[type="number"]').forEach(input => {
+                if (input.id === 'sig-crew') input.value = '2';
+                else if (input.id === 'sig-rate') input.value = '18';
+                else input.value = '';
+            });
+            calcSignature();
+        }
+        
+        // PRIORITY CARE
+        function calcPriority() {
+            const crew = parseInt(document.getElementById('pri-crew').value) || 2;
+            const rate = parseFloat(document.getElementById('pri-rate').value) || 18;
+            const crewCost = crew * rate;
+            
+            const mowHrs = parseFloat(document.getElementById('pri-mow-hrs').value) || 0;
+            const springHrs = parseFloat(document.getElementById('pri-spring-hrs').value) || 0;
+            const fallHrs = parseFloat(document.getElementById('pri-fall-hrs').value) || 0;
+            const shrubHrs = parseFloat(document.getElementById('pri-shrub-hrs').value) || 0;
+            const weedHrs = parseFloat(document.getElementById('pri-weed-hrs').value) || 0;
+            const aerHrs = parseFloat(document.getElementById('pri-aer-hrs').value) || 0;
+            const gutterHrs = parseFloat(document.getElementById('pri-gutter-hrs').value) || 0;
+            const mulchHrs = parseFloat(document.getElementById('pri-mulch-hrs').value) || 0;
+            
+            const laborCost = (mowHrs * 32 * crewCost) + 
+                             (springHrs * 1 * crewCost) + 
+                             (fallHrs * 3 * crewCost) + 
+                             (shrubHrs * 2 * crewCost) + 
+                             (weedHrs * 3 * crewCost) + 
+                             (aerHrs * 1 * crewCost) + 
+                             (gutterHrs * 1 * crewCost) + 
+                             (mulchHrs * 2 * crewCost);
+            
+            const profit = laborCost * 0.30;
+            const annual = laborCost + profit;
+            const monthly = annual / 12;
+            
+            document.getElementById('pri-monthly').textContent = fmt(monthly);
+            document.getElementById('pri-annual').textContent = fmt(annual);
+        }
+        
+        function resetPriority() {
+            document.querySelectorAll('#priority input[type="number"]').forEach(input => {
+                if (input.id === 'pri-crew') input.value = '2';
+                else if (input.id === 'pri-rate') input.value = '18';
+                else input.value = '';
+            });
+            calcPriority();
+        }
+        
+        // EXECUTIVE CARE
+        function calcExecutive() {
+            const crew = parseInt(document.getElementById('exe-crew').value) || 2;
+            const rate = parseFloat(document.getElementById('exe-rate').value) || 18;
+            const crewCost = crew * rate;
+            
+            const mowHrs = parseFloat(document.getElementById('exe-mow-hrs').value) || 0;
+            const springHrs = parseFloat(document.getElementById('exe-spring-hrs').value) || 0;
+            const fallHrs = parseFloat(document.getElementById('exe-fall-hrs').value) || 0;
+            const shrubHrs = parseFloat(document.getElementById('exe-shrub-hrs').value) || 0;
+            const weedHrs = parseFloat(document.getElementById('exe-weed-hrs').value) || 0;
+            const aerHrs = parseFloat(document.getElementById('exe-aer-hrs').value) || 0;
+            const gutterHrs = parseFloat(document.getElementById('exe-gutter-hrs').value) || 0;
+            const plantHrs = parseFloat(document.getElementById('exe-plant-hrs').value) || 0;
+            const powerHrs = parseFloat(document.getElementById('exe-power-hrs').value) || 0;
+            const mulchHrs = parseFloat(document.getElementById('exe-mulch-hrs').value) || 0;
+            
+            const laborCost = (mowHrs * 34 * crewCost) + 
+                             (springHrs * 1 * crewCost) + 
+                             (fallHrs * 4 * crewCost) + 
+                             (shrubHrs * 3 * crewCost) + 
+                             (weedHrs * 4 * crewCost) + 
+                             (aerHrs * 1 * crewCost) + 
+                             (gutterHrs * 2 * crewCost) + 
+                             (plantHrs * 3 * crewCost) + 
+                             (powerHrs * 1 * crewCost) + 
+                             (mulchHrs * 3 * crewCost);
+            
+            const profit = laborCost * 0.30;
+            const annual = laborCost + profit;
+            const monthly = annual / 12;
+            
+            document.getElementById('exe-monthly').textContent = fmt(monthly);
+            document.getElementById('exe-annual').textContent = fmt(annual);
+        }
+        
+        function resetExecutive() {
+            document.querySelectorAll('#executive input[type="number"]').forEach(input => {
+                if (input.id === 'exe-crew') input.value = '2';
+                else if (input.id === 'exe-rate') input.value = '18';
+                else input.value = '';
+            });
+            calcExecutive();
+        }
+        
+        // Initial calculations
+        calcAll();
+        calcSignature();
+        calcPriority();
+        calcExecutive();
+    </script>
+</body>
+</html>
